@@ -139,8 +139,11 @@ const MusicPDFReader = () => {
   const showToolbar = useAutoHide(toolbarVisible, setToolbarVisible, 2000);
   const showHeader = useAutoHide(headerVisible, setHeaderVisible, 2000);
 
+  // Calcola se siamo in "fullscreen" (tutti i componenti UI nascosti)
+  const isFullScreen = !headerVisible && !toolbarVisible && shortcuts.length === 0;
+
   return (
-    <div className="fixed inset-0 bg-gray-50 text-gray-900 flex flex-col">
+    <div className={`fixed inset-0 flex flex-col ${isFullScreen ? 'bg-black' : 'bg-gray-50 text-gray-900'}`}>
       <Header
         filePath={filePath}
         onSearch={handleSearch}
@@ -152,17 +155,19 @@ const MusicPDFReader = () => {
         {/* Area visualizzazione PDF */}
         <div
           ref={pdfContainerRef}
-          className={`flex-1 overflow-hidden bg-gray-100 flex items-center justify-center relative transition-all duration-200 ${!headerVisible ? 'pt-0' : 'pt-[64px]'}`}
+          className={`flex-1 overflow-hidden flex items-center justify-center relative transition-all duration-200 ${isFullScreen ? 'p-0 m-0 bg-black' : 'bg-gray-100'} ${!headerVisible ? 'pt-0' : 'pt-[64px]'}`}
           style={{ height: headerVisible ? '92vh' : '100vh' }}
         >
-          <div className="w-full h-full flex items-center justify-center">
+          <div className={`w-full h-full flex items-center justify-center ${isFullScreen ? 'p-0 m-0' : ''}`}>
             <PDFViewer
               file={filePath}
               currentPage={currentPage}
               zoom={zoom}
               onLoadSuccess={onDocumentLoadSuccess}
+              isFullScreen={isFullScreen}
             />
           </div>
+          {/* ShortcutBar visibile solo se ci sono shortcut */}
           <ShortcutBar
             shortcuts={shortcuts}
             currentPage={currentPage}

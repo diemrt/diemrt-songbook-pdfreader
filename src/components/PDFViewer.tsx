@@ -5,9 +5,10 @@ interface PDFViewerProps {
   currentPage: number;
   zoom: number;
   onLoadSuccess: ({ numPages }: { numPages: number }) => void;
+  isFullScreen?: boolean;
 }
 
-const PDFViewer = ({ file, currentPage, zoom, onLoadSuccess }: PDFViewerProps) => (
+const PDFViewer = ({ file, currentPage, zoom, onLoadSuccess, isFullScreen }: PDFViewerProps) => (
   <Document
     file={file}
     onLoadSuccess={onLoadSuccess}
@@ -19,9 +20,9 @@ const PDFViewer = ({ file, currentPage, zoom, onLoadSuccess }: PDFViewerProps) =
       scale={zoom}
       renderAnnotationLayer={false}
       renderTextLayer={false}
-      width={undefined}
-      height={window.innerHeight * 0.92}
-      className="max-w-full object-contain"
+      width={isFullScreen ? window.innerWidth : undefined}
+      height={isFullScreen ? window.innerHeight : window.innerHeight * 0.92}
+      className={isFullScreen ? 'w-full h-full object-contain bg-black' : 'max-w-full object-contain'}
     />
   </Document>
 );
