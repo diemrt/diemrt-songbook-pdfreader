@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import PDFViewer from './PDFViewer';
 import Toolbar from './Toolbar';
 import Header from './Header';
@@ -18,6 +18,45 @@ interface PDFPageProxy {
 interface PDFDocumentProxy {
   numPages: number;
   getPage: (pageNum: number) => Promise<PDFPageProxy>;
+}
+
+// Custom hook per gestire auto-hide con mouse e touch
+function useAutoHide(visible: boolean, setVisible: (v: boolean) => void, delay: number = 2000) {
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Funzione per mostrare e resettare il timeout
+  const show = useCallback(() => {
+    setVisible(true);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => setVisible(false), delay);
+  }, [setVisible, delay]);
+
+  useEffect(() => {
+    if (!visible) return;
+    show(); // resetta timeout ogni volta che diventa visibile
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [visible, show]);
+
+  // Listener per mouse e touch
+  useEffect(() => {
+    const handleUserAction = () => show();
+    window.addEventListener('mousemove', handleUserAction);
+    window.addEventListener('mousedown', handleUserAction);
+    window.addEventListener('touchstart', handleUserAction);
+    window.addEventListener('touchmove', handleUserAction);
+    window.addEventListener('click', handleUserAction);
+    return () => {
+      window.removeEventListener('mousemove', handleUserAction);
+      window.removeEventListener('mousedown', handleUserAction);
+      window.removeEventListener('touchstart', handleUserAction);
+      window.removeEventListener('touchmove', handleUserAction);
+      window.removeEventListener('click', handleUserAction);
+    };
+  }, [show]);
+
+  return show;
 }
 
 const MusicPDFReader = () => {
@@ -43,20 +82,12 @@ const MusicPDFReader = () => {
   const handlePrevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
   const handleNextPage = () => setCurrentPage(prev => Math.min(prev + 1, numPages));
 
-  // Mostra la toolbar su hover o click
-  const showToolbar = () => setToolbarVisible(true);
-  const hideToolbar = () => setToolbarVisible(false);
-
   // Nasconde la toolbar dopo un po' che il mouse esce
   useEffect(() => {
     if (!toolbarVisible) return;
     const timeout = setTimeout(() => setToolbarVisible(false), 2000);
     return () => clearTimeout(timeout);
   }, [toolbarVisible]);
-
-  // Header show/hide logic
-  const showHeader = () => setHeaderVisible(true);
-  const hideHeader = () => setHeaderVisible(false);
 
   // Nasconde l'header dopo un po' che il mouse esce
   useEffect(() => {
@@ -104,6 +135,10 @@ const MusicPDFReader = () => {
     // Se non trovato, nessuna azione (potresti mostrare un messaggio)
   };
 
+  // Usa la custom hook per gestire auto-hide
+  const showToolbar = useAutoHide(toolbarVisible, setToolbarVisible, 2000);
+  const showHeader = useAutoHide(headerVisible, setHeaderVisible, 2000);
+
   return (
     <div className="fixed inset-0 bg-gray-50 text-gray-900 flex flex-col">
       <Header
@@ -111,7 +146,7 @@ const MusicPDFReader = () => {
         onSearch={handleSearch}
         headerVisible={headerVisible}
         showHeader={showHeader}
-        hideHeader={hideHeader}
+        hideHeader={() => setHeaderVisible(false)}
       />
       <div className="flex-1 flex flex-col">
         {/* Area visualizzazione PDF */}
@@ -119,9 +154,6 @@ const MusicPDFReader = () => {
           ref={pdfContainerRef}
           className={`flex-1 overflow-hidden bg-gray-100 flex items-center justify-center relative transition-all duration-200 ${!headerVisible ? 'pt-0' : 'pt-[64px]'}`}
           style={{ height: headerVisible ? '92vh' : '100vh' }}
-          onMouseEnter={() => { showToolbar(); showHeader(); }}
-          onMouseMove={() => { showToolbar(); showHeader(); }}
-          onClick={() => { showToolbar(); showHeader(); }}
         >
           <div className="w-full h-full flex items-center justify-center">
             <PDFViewer
@@ -139,7 +171,7 @@ const MusicPDFReader = () => {
           <Toolbar
             toolbarVisible={toolbarVisible}
             showToolbar={showToolbar}
-            hideToolbar={hideToolbar}
+            hideToolbar={() => setToolbarVisible(false)}
             currentPage={currentPage}
             numPages={numPages}
             setCurrentPage={setCurrentPage}
