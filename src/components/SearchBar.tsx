@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
+  onFocusSearch?: () => void; // aggiunto
+  onBlurSearch?: () => void;  // aggiunto
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFocusSearch, onBlurSearch }) => {
   const [value, setValue] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -23,6 +25,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
         value={value}
         onChange={e => setValue(e.target.value)}
         aria-label="Cerca nel PDF"
+        onFocus={onFocusSearch} // aggiunto
+        onBlur={onBlurSearch}   // aggiunto
       />
       <button
         type="submit"
