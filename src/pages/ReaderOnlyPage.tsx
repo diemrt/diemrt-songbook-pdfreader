@@ -1,8 +1,54 @@
 import MusicPDFReader from "../components/MusicPDFReader";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { connect, keepAlive } from "../api";
+import { useContext, useEffect } from "react";
+import DeviceContext from "../contexts/DeviceContext";
 
 const ReaderOnlyPage = () => {
+  const getUniqueBrowserId = () => {
+    return `${navigator.userAgent}-${navigator.language}`;
+  };
 
-    return <MusicPDFReader />;
-}
+  const { deviceId } = useContext(DeviceContext);
+  const browserInfo = getUniqueBrowserId();
+  const { data } = useQuery({
+    queryKey: ["connection"],
+    queryFn: async () => {
+      return await connect({
+        deviceId: browserInfo,
+        ipAddress: "127.0.0.1",
+        userAgent: "device",
+      });
+    },
+    enabled: deviceId === undefined,
+  });
+
+  const { mutate } = useMutation({
+    mutationFn: async (id: string) => {
+      if (id) {
+        await keepAlive(id);
+      }
+    },
+    onSuccess: () => {
+      console.log("Keep alive successful");
+    },
+  });
+
+  useEffect(() => {
+    if (data?.deviceId) {
+      mutate(data.deviceId);
+      const interval = setInterval(() => {
+        mutate(data.deviceId);
+      }, 30000); // 30 secondi
+      return () => clearInterval(interval);
+    }
+  }, [data?.deviceId, mutate]);
+
+  return (
+    <DeviceContext.Provider value={{ deviceId: data?.deviceId }}>
+      <MusicPDFReader />
+    </DeviceContext.Provider>
+  );
+};
 
 export default ReaderOnlyPage;
