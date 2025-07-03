@@ -1,3 +1,4 @@
+import { X } from 'lucide-react';
 import React, { useState } from 'react';
 
 interface SearchBarProps {
@@ -36,15 +37,16 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFocusSearch, onBlurSe
       </button>
       <button
         type="button"
-        className="px-3 py-2 rounded-full bg-gray-300 text-gray-700 text-sm font-semibold hover:bg-gray-400 transition-colors"
-        onClick={() => {
+          onClick={() => {
           setValue('');
           onSearch('');
         }}
-        aria-label="Svuota ricerca"
-      >
-        ✕
-      </button>
+          className="ml-2 p-3 rounded-full bg-white shadow hover:bg-gray-100 flex items-center justify-center text-gray-400"
+          aria-label="Chiudi reader"
+          style={{ width: 40, height: 40 }}
+        >
+          <X size={20} className='stroke-neutral-950 stroke-3' />
+        </button>
     </form>
   );
 };
