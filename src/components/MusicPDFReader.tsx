@@ -64,9 +64,9 @@ const MusicPDFReader = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [zoom, setZoom] = useState<number>(1.0);
   const [toolbarVisible, setToolbarVisible] = useState(false);
-  const [headerVisible, setHeaderVisible] = useState(true);
   const [shortcuts, setShortcuts] = useState<number[]>([]);
   const [pdfInstance, setPdfInstance] = useState<PDFDocumentProxy | null>(null);
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const pdfContainerRef = useRef<HTMLDivElement>(null);
   const filePath = "/06.18.pdf";
 
@@ -89,12 +89,23 @@ const MusicPDFReader = () => {
     return () => clearTimeout(timeout);
   }, [toolbarVisible]);
 
-  // Nasconde l'header dopo un po' che il mouse esce
+  // Listener per uscire dal fullscreen su qualsiasi interazione
   useEffect(() => {
-    if (!headerVisible) return;
-    const timeout = setTimeout(() => setHeaderVisible(false), 2000);
-    return () => clearTimeout(timeout);
-  }, [headerVisible]);
+    if (!isFullScreen) return;
+    const exitFullScreen = () => setIsFullScreen(false);
+    window.addEventListener('mousemove', exitFullScreen);
+    window.addEventListener('mousedown', exitFullScreen);
+    window.addEventListener('touchstart', exitFullScreen);
+    window.addEventListener('keydown', exitFullScreen);
+    window.addEventListener('click', exitFullScreen);
+    return () => {
+      window.removeEventListener('mousemove', exitFullScreen);
+      window.removeEventListener('mousedown', exitFullScreen);
+      window.removeEventListener('touchstart', exitFullScreen);
+      window.removeEventListener('keydown', exitFullScreen);
+      window.removeEventListener('click', exitFullScreen);
+    };
+  }, [isFullScreen]);
 
   // Shortcut logic
   const toggleShortcut = (page: number) => {
@@ -137,26 +148,21 @@ const MusicPDFReader = () => {
 
   // Usa la custom hook per gestire auto-hide
   const showToolbar = useAutoHide(toolbarVisible, setToolbarVisible, 2000);
-  const showHeader = useAutoHide(headerVisible, setHeaderVisible, 2000);
-
-  // Calcola se siamo in "fullscreen" (tutti i componenti UI nascosti)
-  const isFullScreen = !headerVisible && !toolbarVisible && shortcuts.length === 0;
 
   return (
     <div className={`fixed inset-0 flex flex-col ${isFullScreen ? 'bg-black' : 'bg-gray-50 text-gray-900'}`}>
       <Header
         filePath={filePath}
         onSearch={handleSearch}
-        headerVisible={headerVisible}
-        showHeader={showHeader}
-        hideHeader={() => setHeaderVisible(false)}
+        isFullScreen={isFullScreen}
+        setIsFullScreen={setIsFullScreen}
       />
       <div className="flex-1 flex flex-col">
         {/* Area visualizzazione PDF */}
         <div
           ref={pdfContainerRef}
-          className={`flex-1 overflow-hidden flex items-center justify-center relative transition-all duration-200 ${isFullScreen ? 'p-0 m-0 bg-black' : 'bg-gray-100'} ${!headerVisible ? 'pt-0' : 'pt-[64px]'}`}
-          style={{ height: headerVisible ? '92vh' : '100vh' }}
+          className={`flex-1 overflow-hidden flex items-center justify-center relative transition-all duration-200 ${isFullScreen ? 'p-0 m-0 bg-black' : 'bg-gray-100'} pt-[64px]`}
+          style={{ height: '92vh' }}
         >
           <div className={`w-full h-full flex items-center justify-center ${isFullScreen ? 'p-0 m-0' : ''}`}>
             <PDFViewer
