@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import SearchBar from './SearchBar';
-import { Maximize, Minimize } from 'lucide-react';
+import { Maximize, Minimize, Monitor } from 'lucide-react';
+import { MonitoringContext } from './AppRouter';
 
 interface HeaderProps {
   filePath: string;
@@ -19,6 +20,7 @@ function extractFileName(filePath: string): string {
 
 const Header: React.FC<HeaderProps> = ({ filePath, onSearch, isFullScreen, setIsFullScreen }) => {
   const fileName = extractFileName(filePath);
+  const {isMonitoring, setIsMonitoring} = useContext(MonitoringContext);
 
   return (
     <div
@@ -39,6 +41,11 @@ const Header: React.FC<HeaderProps> = ({ filePath, onSearch, isFullScreen, setIs
           style={{ width: 40, height: 40 }}
         >
           {isFullScreen ? <Minimize size={20}  className='stroke-neutral-950 stroke-3'  /> : <Maximize size={20}  className='stroke-neutral-950 stroke-3'  />}
+        </button>
+        <button className='ml-2 p-3 rounded-full bg-white shadow hover:bg-gray-100 flex items-center justify-center text-gray-400'
+          onClick={e => { e.stopPropagation(); setIsMonitoring(v => !v); }}
+          title={isMonitoring ? 'Disabilita Monitoraggio' : 'Abilita Monitoraggio'}>
+          {isMonitoring ? <Monitor size={20} className='stroke-blue-500' /> : <Monitor size={20} className='stroke-neutral-950' />}
         </button>
       </div>
     </div>
