@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import PDFViewer from './PDFViewer';
 import Toolbar from './Toolbar';
 import Header from './Header';
 import ShortcutBar from './ShortcutBar';
 import { pdfjs } from 'react-pdf';
+import { FilePathContext } from '../App';
 
 // Tipi minimi per evitare any
 interface PDFTextItem {
@@ -31,7 +32,7 @@ const MusicPDFReader = () => {
   const [pdfInstance, setPdfInstance] = useState<PDFDocumentProxy | null>(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const pdfContainerRef = useRef<HTMLDivElement>(null);
-  const filePath = "/06.18.pdf";
+  const { filePath } = useContext(FilePathContext);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
