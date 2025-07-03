@@ -161,10 +161,10 @@ const MusicPDFReader = () => {
         {/* Area visualizzazione PDF */}
         <div
           ref={pdfContainerRef}
-          className={`flex-1 overflow-hidden flex items-center justify-center relative transition-all duration-200 ${isFullScreen ? 'p-0 m-0 bg-black' : 'bg-gray-100'} pt-[64px]`}
-          style={{ height: '92vh' }}
+          className={`flex-1 overflow-hidden flex items-center justify-center relative transition-all duration-200 ${isFullScreen ? 'p-0 m-0 bg-black w-screen h-screen fixed top-0 left-0 z-50' : 'bg-gray-100 pt-[64px]'} `}
+          style={isFullScreen ? { width: '100vw', height: '100vh', padding: 0, margin: 0 } : { height: '92vh' }}
         >
-          <div className={`w-full h-full flex items-center justify-center ${isFullScreen ? 'p-0 m-0' : ''}`}>
+          <div className={`w-full h-full flex items-center justify-center ${isFullScreen ? 'p-0 m-0' : ''}`} style={isFullScreen ? { alignItems: 'center', justifyContent: 'center' } : {}}>
             <PDFViewer
               file={filePath}
               currentPage={currentPage}

@@ -19,7 +19,7 @@ const Header: React.FC<HeaderProps> = ({ filePath, onSearch, isFullScreen, setIs
 
   return (
     <div
-      className={`border-b border-gray-200 bg-white px-6 py-4 flex items-center gap-4 fixed top-0 left-0 w-full z-50 transition-opacity duration-200 opacity-100 pointer-events-auto`}
+      className={`border-b border-gray-200 bg-white px-6 py-4 flex items-center gap-4 fixed top-0 left-0 w-full z-50 transition-opacity duration-200 ${isFullScreen ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}
       style={{ minHeight: 64 }}
     >
       <h1 className="text-2xl font-bold mr-2">Reader PDF Musicale</h1>
