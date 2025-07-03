@@ -20,9 +20,14 @@ const PDFViewer = ({ file, currentPage, zoom, onLoadSuccess, isFullScreen }: PDF
       scale={zoom}
       renderAnnotationLayer={false}
       renderTextLayer={false}
-      width={isFullScreen ? window.innerWidth : undefined}
+      // In fullscreen, usa solo height per scalare il PDF in base all'altezza
+      width={isFullScreen ? undefined : undefined}
       height={isFullScreen ? window.innerHeight : window.innerHeight * 0.92}
-      className={isFullScreen ? 'w-full h-full object-contain bg-black' : 'max-w-full object-contain'}
+      className={
+        isFullScreen
+          ? 'w-auto h-full max-h-screen object-contain bg-black mx-auto my-0 flex items-center justify-center'
+          : 'max-w-full object-contain'
+      }
     />
   </Document>
 );
