@@ -9,7 +9,7 @@ const ReaderOnlyPage = () => {
     return `${navigator.userAgent}-${navigator.language}`;
   };
 
-  const { deviceId } = useContext(DeviceContext);
+  const { deviceId, setDeviceId } = useContext(DeviceContext);
   const browserInfo = getUniqueBrowserId();
   const { data } = useQuery({
     queryKey: ["connection"],
@@ -36,19 +36,16 @@ const ReaderOnlyPage = () => {
 
   useEffect(() => {
     if (data?.deviceId) {
+      setDeviceId(data.deviceId);
       mutate(data.deviceId);
       const interval = setInterval(() => {
         mutate(data.deviceId);
       }, 30000); // 30 secondi
       return () => clearInterval(interval);
     }
-  }, [data?.deviceId, mutate]);
+  }, [data?.deviceId, mutate, setDeviceId]);
 
-  return (
-    <DeviceContext.Provider value={{ deviceId: data?.deviceId }}>
-      <MusicPDFReader />
-    </DeviceContext.Provider>
-  );
+  return <MusicPDFReader />;
 };
 
 export default ReaderOnlyPage;
