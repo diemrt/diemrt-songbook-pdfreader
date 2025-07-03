@@ -4,9 +4,7 @@ import ZoomControls from './ZoomControls';
 import { Star, StarOff } from 'lucide-react';
 
 interface ToolbarProps {
-  toolbarVisible: boolean;
-  showToolbar: () => void;
-  hideToolbar: () => void;
+  isFullScreen: boolean;
   currentPage: number;
   numPages: number;
   setCurrentPage: (page: number) => void;
@@ -21,9 +19,7 @@ interface ToolbarProps {
 }
 
 const Toolbar = ({
-  toolbarVisible,
-  showToolbar,
-  hideToolbar,
+  isFullScreen,
   currentPage,
   numPages,
   setCurrentPage,
@@ -37,10 +33,7 @@ const Toolbar = ({
   isCurrentShortcut
 }: ToolbarProps) => (
   <div
-    className={`fixed left-0 bottom-0 w-full z-50 transition-opacity duration-200 ${toolbarVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'} bg-white/80 backdrop-blur border-t border-gray-200`}
-    onMouseEnter={showToolbar}
-    onMouseLeave={hideToolbar}
-    onClick={showToolbar}
+    className={`fixed left-0 bottom-0 w-full z-50 transition-opacity duration-200 ${isFullScreen ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'} bg-white/80 backdrop-blur border-t border-gray-200`}
     style={{ padding: 'env(safe-area-inset-bottom, 0) 0 0 0', minHeight: 96 }}
   >
     <div className="flex flex-col items-center justify-center px-4 pt-3 pb-2 md:pt-4 md:pb-3 md:px-8">

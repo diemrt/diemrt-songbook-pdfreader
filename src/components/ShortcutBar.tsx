@@ -1,39 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ShortcutBarProps {
   shortcuts: number[];
   currentPage: number;
   onShortcutClick: (page: number) => void;
+  isFullScreen: boolean;
 }
 
-const AUTOHIDE_MS = 2500;
-
-const ShortcutBar = ({ shortcuts, currentPage, onShortcutClick }: ShortcutBarProps) => {
-  const [visible, setVisible] = useState(true);
+const ShortcutBar = ({ shortcuts, currentPage, onShortcutClick, isFullScreen }: ShortcutBarProps) => {
   const [orderedShortcuts, setOrderedShortcuts] = useState<number[]>(shortcuts);
-  const hideTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    if (!visible) return;
-    if (hideTimeout.current) clearTimeout(hideTimeout.current);
-    hideTimeout.current = setTimeout(() => setVisible(false), AUTOHIDE_MS);
-    return () => {
-      if (hideTimeout.current) clearTimeout(hideTimeout.current);
-    };
-  }, [visible, shortcuts, currentPage]);
-
-  // Mostra la barra se l'utente interagisce con la pagina (click/tap/hover)
-  useEffect(() => {
-    const showBar = () => setVisible(true);
-    window.addEventListener('mousemove', showBar);
-    window.addEventListener('touchstart', showBar);
-    window.addEventListener('click', showBar);
-    return () => {
-      window.removeEventListener('mousemove', showBar);
-      window.removeEventListener('touchstart', showBar);
-      window.removeEventListener('click', showBar);
-    };
-  }, []);
 
   // Aggiorna l'ordine se la lista di shortcut cambia (aggiunte/rimosse)
   useEffect(() => {
@@ -46,17 +21,14 @@ const ShortcutBar = ({ shortcuts, currentPage, onShortcutClick }: ShortcutBarPro
   }, [shortcuts]);
 
   const handleShortcutClick = (page: number) => {
-    // Non modificare l'ordine degli shortcut al click
     onShortcutClick(page);
   };
 
-  if (orderedShortcuts.length === 0) return null;
+  if (orderedShortcuts.length === 0 || isFullScreen) return null;
 
   return (
     <div
-      className={`fixed z-50 left-1/2 top-20 transform -translate-x-1/2 transition-opacity duration-300 ${visible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
-      onTouchStart={() => setVisible(true)}
-      onMouseMove={() => setVisible(true)}
+      className="fixed z-50 left-1/2 top-20 transform -translate-x-1/2 opacity-100 pointer-events-auto"
       style={{
         maxWidth: '95vw',
         borderRadius: 32,

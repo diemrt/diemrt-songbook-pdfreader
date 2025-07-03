@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PDFViewer from './PDFViewer';
 import Toolbar from './Toolbar';
 import Header from './Header';
@@ -20,44 +20,7 @@ interface PDFDocumentProxy {
   getPage: (pageNum: number) => Promise<PDFPageProxy>;
 }
 
-// Custom hook per gestire auto-hide con mouse e touch
-function useAutoHide(visible: boolean, setVisible: (v: boolean) => void, delay: number = 2000) {
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Funzione per mostrare e resettare il timeout
-  const show = useCallback(() => {
-    setVisible(true);
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => setVisible(false), delay);
-  }, [setVisible, delay]);
-
-  useEffect(() => {
-    if (!visible) return;
-    show(); // resetta timeout ogni volta che diventa visibile
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, [visible, show]);
-
-  // Listener per mouse e touch
-  useEffect(() => {
-    const handleUserAction = () => show();
-    window.addEventListener('mousemove', handleUserAction);
-    window.addEventListener('mousedown', handleUserAction);
-    window.addEventListener('touchstart', handleUserAction);
-    window.addEventListener('touchmove', handleUserAction);
-    window.addEventListener('click', handleUserAction);
-    return () => {
-      window.removeEventListener('mousemove', handleUserAction);
-      window.removeEventListener('mousedown', handleUserAction);
-      window.removeEventListener('touchstart', handleUserAction);
-      window.removeEventListener('touchmove', handleUserAction);
-      window.removeEventListener('click', handleUserAction);
-    };
-  }, [show]);
-
-  return show;
-}
+// Rimuovi la custom hook per gestire auto-hide
 
 const MusicPDFReader = () => {
   const [numPages, setNumPages] = useState<number>(0);
@@ -146,9 +109,6 @@ const MusicPDFReader = () => {
     // Se non trovato, nessuna azione (potresti mostrare un messaggio)
   };
 
-  // Usa la custom hook per gestire auto-hide
-  const showToolbar = useAutoHide(toolbarVisible, setToolbarVisible, 2000);
-
   return (
     <div className={`fixed inset-0 flex flex-col ${isFullScreen ? 'bg-black' : 'bg-gray-50 text-gray-900'}`}>
       <Header
@@ -173,16 +133,15 @@ const MusicPDFReader = () => {
               isFullScreen={isFullScreen}
             />
           </div>
-          {/* ShortcutBar visibile solo se ci sono shortcut */}
+          {/* ShortcutBar visibile solo se ci sono shortcut e non in fullscreen */}
           <ShortcutBar
             shortcuts={shortcuts}
             currentPage={currentPage}
             onShortcutClick={setCurrentPage}
+            isFullScreen={isFullScreen}
           />
           <Toolbar
-            toolbarVisible={toolbarVisible}
-            showToolbar={showToolbar}
-            hideToolbar={() => setToolbarVisible(false)}
+            isFullScreen={isFullScreen}
             currentPage={currentPage}
             numPages={numPages}
             setCurrentPage={setCurrentPage}
