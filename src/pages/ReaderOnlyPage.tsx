@@ -6,7 +6,7 @@ import DeviceContext from "../contexts/DeviceContext";
 
 const ReaderOnlyPage = () => {
   const getUniqueBrowserId = () => {
-    return `${navigator.userAgent}-${navigator.language}`;
+    return `${navigator.userAgent}-${navigator.language}-${Math.random().toString(36).substring(2, 15)}`;
   };
 
   const { deviceId, setDeviceId } = useContext(DeviceContext);

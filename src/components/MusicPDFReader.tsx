@@ -5,6 +5,9 @@ import Header from './Header';
 import ShortcutBar from './ShortcutBar';
 import { pdfjs } from 'react-pdf';
 import { FilePathContext } from '../App';
+import DeviceContext from '../contexts/DeviceContext';
+import { useMutation } from '@tanstack/react-query';
+import { trackPageInteraction } from '../api';
 
 // Tipi minimi per evitare any
 interface PDFTextItem {
@@ -33,6 +36,32 @@ const MusicPDFReader = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const pdfContainerRef = useRef<HTMLDivElement>(null);
   const { filePath } = useContext(FilePathContext);
+  const { deviceId } = useContext(DeviceContext);
+
+  const { mutate } = useMutation({
+    mutationFn: async ({id, page, file}: {id: string, page: number, file: string}) => {
+      if(id) {
+        await trackPageInteraction({
+          deviceId: id,
+          pageNumber: page,
+          pdfFileName: file,
+        })
+      }
+    },
+    onSuccess: () => {
+      console.log('Page interaction tracked successfully');
+    }
+  })
+
+  useEffect(() => {
+    if (deviceId) {
+      mutate({
+        id: deviceId,
+        page: currentPage,
+        file: filePath
+      });
+    }
+  }, [currentPage, deviceId, filePath, mutate]);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
