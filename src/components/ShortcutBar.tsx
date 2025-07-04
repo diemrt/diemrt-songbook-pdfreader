@@ -1,4 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { addFavoritePages } from '../api';
+import DeviceContext from '../contexts/DeviceContext';
 
 interface ShortcutBarProps {
   shortcuts: number[];
@@ -7,18 +10,34 @@ interface ShortcutBarProps {
   isFullScreen: boolean;
 }
 
+
 const ShortcutBar = ({ shortcuts, currentPage, onShortcutClick, isFullScreen }: ShortcutBarProps) => {
+  const { deviceId } = useContext(DeviceContext);
   const [orderedShortcuts, setOrderedShortcuts] = useState<number[]>(shortcuts);
 
   // Aggiorna l'ordine se la lista di shortcut cambia (aggiunte/rimosse)
   useEffect(() => {
     setOrderedShortcuts(prev => {
-      // Mantieni l'ordine degli shortcut già cliccati, aggiungi i nuovi in fondo
       const newShortcuts = shortcuts.filter(s => !prev.includes(s));
       const removedShortcuts = prev.filter(s => shortcuts.includes(s));
       return [...removedShortcuts, ...newShortcuts];
     });
   }, [shortcuts]);
+
+  // Persisti le shortcut lato API quando cambiano
+  const { mutate: saveFavorites } = useMutation({
+    mutationFn: (pages: number[]) => {
+      if (!deviceId) return Promise.resolve();
+      return addFavoritePages({ deviceId, pages: pages.join(',') });
+    },
+  });
+
+  useEffect(() => {
+    if (deviceId && orderedShortcuts.length > 0) {
+      saveFavorites(orderedShortcuts);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderedShortcuts, deviceId]);
 
   const handleShortcutClick = (page: number) => {
     onShortcutClick(page);
