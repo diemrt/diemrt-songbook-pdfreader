@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { connect, keepAlive } from "../api";
 import { useContext, useEffect } from "react";
 import DeviceContext from "../contexts/DeviceContext";
+import UserAgentContext from "../contexts/UserAgentContext";
 
 const ReaderOnlyPage = () => {
   const getUniqueBrowserId = () => {
@@ -10,6 +11,7 @@ const ReaderOnlyPage = () => {
   };
 
   const { deviceId, setDeviceId } = useContext(DeviceContext);
+  const { userAgent } = useContext(UserAgentContext);
   const browserInfo = getUniqueBrowserId();
   const { data } = useQuery({
     queryKey: ["connection"],
@@ -17,7 +19,7 @@ const ReaderOnlyPage = () => {
       return await connect({
         deviceId: browserInfo,
         ipAddress: "127.0.0.1",
-        userAgent: "device",
+        userAgent: navigator.userAgent,
       });
     },
     enabled: deviceId === undefined,
@@ -28,7 +30,7 @@ const ReaderOnlyPage = () => {
       if (id) {
         await keepAlive({
           deviceId: id,
-          userAgent: navigator.userAgent,
+          userAgent: userAgent || navigator.userAgent,
           ipAddress: "127.0.0.1"
         });
       }

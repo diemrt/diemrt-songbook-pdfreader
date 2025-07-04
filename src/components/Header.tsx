@@ -1,7 +1,8 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import SearchBar from './SearchBar';
-import { Maximize, Minimize, Monitor } from 'lucide-react';
+import { Maximize, Minimize, Monitor, User } from 'lucide-react';
 import { MonitoringContext } from './AppRouter';
+import UserAgentContext from '../contexts/UserAgentContext';
 
 interface HeaderProps {
   filePath: string;
@@ -21,6 +22,19 @@ function extractFileName(filePath: string): string {
 const Header: React.FC<HeaderProps> = ({ filePath, onSearch, isFullScreen, setIsFullScreen }) => {
   const fileName = extractFileName(filePath);
   const {isMonitoring, setIsMonitoring} = useContext(MonitoringContext);
+  const {userAgent, setUserAgent} = useContext(UserAgentContext);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState(userAgent || '');
+
+  const handleNameSubmit = () => {
+    setUserAgent(tempName.trim() || undefined);
+    setIsEditingName(false);
+  };
+
+  const handleNameCancel = () => {
+    setTempName(userAgent || '');
+    setIsEditingName(false);
+  };
 
   return (
     <div
@@ -32,6 +46,47 @@ const Header: React.FC<HeaderProps> = ({ filePath, onSearch, isFullScreen, setIs
         <span className="text-xs text-gray-400">{fileName}</span>
       </div>
       <div className="flex-1 flex justify-end items-center gap-2">
+        {/* Campo per il nome utente */}
+        <div className="flex items-center gap-2">
+          {isEditingName ? (
+            <div className="flex items-center gap-1">
+              <input
+                type="text"
+                value={tempName}
+                onChange={(e) => setTempName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleNameSubmit();
+                  if (e.key === 'Escape') handleNameCancel();
+                }}
+                placeholder="Inserisci il tuo nome"
+                className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                autoFocus
+              />
+              <button
+                onClick={handleNameSubmit}
+                className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                ✓
+              </button>
+              <button
+                onClick={handleNameCancel}
+                className="px-2 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600"
+              >
+                ✕
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setIsEditingName(true)}
+              className="flex items-center gap-1 px-2 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded"
+              title="Clicca per modificare il nome"
+            >
+              <User size={16} />
+              <span>{userAgent || 'Imposta nome'}</span>
+            </button>
+          )}
+        </div>
+        
         {onSearch && (
         <SearchBar onSearch={onSearch} />
         )}
