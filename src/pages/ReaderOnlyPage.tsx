@@ -40,7 +40,7 @@ const ReaderOnlyPage = () => {
       mutate(data.deviceId);
       const interval = setInterval(() => {
         mutate(data.deviceId);
-      }, 30000); // 30 secondi
+      }, 15000); // 30 secondi
       return () => clearInterval(interval);
     }
   }, [data?.deviceId, mutate, setDeviceId]);
