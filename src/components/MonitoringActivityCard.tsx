@@ -51,7 +51,8 @@ const MonitoringActivityCard = () => {
                   <User2Icon className="w-5 h-5 text-blue-500" />
                   <span className="text-gray-900 font-mono truncate max-w-[120px]" title={activity.device?.userAgent || "-"}>{activity.device?.userAgent || "-"}</span>
                 </div>
-                <div className="text-sm text-blue-700 font-bold">Pagina <span className="text-lg font-extrabold text-blue-900">{activity.pageNumber}</span></div>
+                <div className="text-sm text-blue-700 font-bold">Pagina: <span className="text-lg font-extrabold text-blue-900">{activity.pageNumber}</span></div>
+                <div className="text-xs text-green-600 font-bold">Preferiti: <span className="text-md font-extrabold text-green-700">{activity.favorites || "-"}</span></div>
               </div>
               {/* Info secondarie - collapsible */}
               <details className="w-full mt-auto text-xs text-gray-600 bg-gray-50 rounded p-2 cursor-pointer select-none">
