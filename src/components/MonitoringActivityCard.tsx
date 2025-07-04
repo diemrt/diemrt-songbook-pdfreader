@@ -3,6 +3,7 @@ import { useState } from "react";
 import { getOnlineInteractions } from "../api";
 import MiniPDFViewer from "./MiniPDFViewer";
 import { Document, Page } from "react-pdf";
+import { User2Icon } from "lucide-react";
 
 const MonitoringActivityCard = () => {
   const { data } = useQuery({
@@ -21,8 +22,8 @@ const MonitoringActivityCard = () => {
   return (
     <div className="bg-gradient-to-br from-white to-gray-100 shadow-xl rounded-2xl p-6 w-full max-h-[80vh] overflow-y-auto border border-gray-200">
       <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
-        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" className="text-blue-500"><path stroke="currentColor" strokeWidth="2" d="M4 8V6a2 2 0 0 1 2-2h2m8 0h2a2 2 0 0 1 2 2v2m0 8v2a2 2 0 0 1-2 2h-2m-8 0H6a2 2 0 0 1-2-2v-2"/></svg>
-        Online users
+        <User2Icon className="w-6 h-6 text-blue-600" />
+        Attività Utenti Online
       </h2>
       {data && Array.isArray(data) && data.length > 0 ? (
         <div className="flex flex-col gap-5">
@@ -47,10 +48,11 @@ const MonitoringActivityCard = () => {
               {/* Info Card */}
               <div className="flex-1 flex flex-col justify-center gap-1">
                 <div className="font-semibold text-gray-700 truncate text-base mb-1 flex items-center gap-2">
-                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" className="text-blue-400"><path stroke="currentColor" strokeWidth="2" d="M4 8V6a2 2 0 0 1 2-2h2m8 0h2a2 2 0 0 1 2 2v2m0 8v2a2 2 0 0 1-2 2h-2m-8 0H6a2 2 0 0 1-2-2v-2"/></svg>
-                  PDF: <span className="text-gray-900 font-mono">{activity.pdfFileName}</span>
+                  <User2Icon className="w-5 h-5 text-blue-500" />
+                  User Agent: <span className="text-gray-900 font-mono">{activity.device?.userAgent || "-"}</span>
                 </div>
                 <div className="text-sm text-gray-600">Pagina: <span className="font-semibold text-gray-800">{activity.pageNumber}</span></div>
+                <div className="text-sm text-gray-600">PDF: <span className="text-gray-900 font-mono">{activity.pdfFileName}</span></div>
                 <div className="text-xs text-gray-400">Timestamp: {new Date(activity.timestamp).toLocaleString()}</div>
                 {activity.device && (
                   <div className="mt-2 pl-3 border-l-2 border-blue-100 bg-blue-50/30 rounded flex flex-col gap-1 py-1">
