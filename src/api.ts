@@ -96,3 +96,34 @@ export const getCurrentPageInteraction = async (deviceId: string, pdfFileName?: 
   }
   return response.json();
 };
+
+// FavoritePages APIs
+export const getFavoritePages = async (deviceId: string) => {
+  const response = await fetch(`${basePathApi}/FavoritePages/${encodeURIComponent(deviceId)}`);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return response.json();
+};
+
+export const deleteFavoritePages = async (deviceId: string) => {
+  const response = await fetch(`${basePathApi}/FavoritePages/${encodeURIComponent(deviceId)}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return response.json();
+};
+
+export const addFavoritePages = async (favoritePagesDto: { deviceId: string, pages: string}) => {
+  const response = await fetch(`${basePathApi}/FavoritePages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(favoritePagesDto),
+  });
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return response.json();
+};
