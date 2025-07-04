@@ -78,15 +78,15 @@ const MonitoringActivityCard = () => {
       {/* MODALE PDF GRANDE */}
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="relative bg-white rounded-2xl shadow-2xl p-6 max-w-3xl w-full flex flex-col items-center">
+          <div className="relative bg-white rounded-2xl shadow-2xl p-0 max-w-3xl w-full flex flex-col items-center overflow-hidden">
             <button
-              className="absolute top-3 right-3 text-gray-500 hover:text-red-500 bg-gray-100 rounded-full p-2 shadow"
+              className="absolute top-3 right-3 text-gray-500 hover:text-red-500 bg-gray-100 rounded-full p-2 shadow z-10"
               onClick={() => setModal(null)}
               aria-label="Chiudi modale"
             >
               <svg width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2" d="M6 6l12 12M6 18L18 6"/></svg>
             </button>
-            <div className="w-full flex flex-col items-center">
+            <div className="w-full flex flex-col items-center justify-center" style={{height: '80vh', maxHeight: '80vh', overflow: 'hidden'}}>
               <Document
                 file={modal.file}
                 loading={<div className="text-center text-xs py-4 text-gray-400">Caricamento PDF...</div>}
@@ -94,10 +94,12 @@ const MonitoringActivityCard = () => {
               >
                 <Page
                   pageNumber={modal.page}
-                  scale={1.5}
+                  scale={1}
+                  width={undefined}
+                  height={window.innerHeight * 0.75}
                   renderAnnotationLayer={false}
                   renderTextLayer={false}
-                  className="object-contain mx-auto rounded-lg border shadow"
+                  className="w-auto h-full max-h-[75vh] object-contain bg-black mx-auto my-0 flex items-center justify-center rounded-lg"
                 />
               </Document>
             </div>
