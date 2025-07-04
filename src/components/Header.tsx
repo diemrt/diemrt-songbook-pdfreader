@@ -1,6 +1,6 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import SearchBar from './SearchBar';
-import { Maximize, Minimize, Monitor, User } from 'lucide-react';
+import { Maximize, Minimize, Monitor, User, X } from 'lucide-react';
 import { MonitoringContext } from './AppRouter';
 import UserAgentContext from '../contexts/UserAgentContext';
 
@@ -24,15 +24,50 @@ const Header: React.FC<HeaderProps> = ({ filePath, onSearch, isFullScreen, setIs
   const {isMonitoring, setIsMonitoring} = useContext(MonitoringContext);
   const {userAgent, setUserAgent} = useContext(UserAgentContext);
   const [isEditingName, setIsEditingName] = useState(false);
-  const [tempName, setTempName] = useState(userAgent || '');
+  const [tempName, setTempName] = useState('');
 
-  const handleNameSubmit = () => {
-    setUserAgent(tempName.trim() || undefined);
+  // Carica il nome dal localStorage al primo render
+  useEffect(() => {
+    const savedName = localStorage.getItem('userAgent');
+    if (savedName) {
+      setUserAgent(savedName);
+    }
+  }, [setUserAgent]);
+
+  // Aggiorna tempName quando userAgent cambia
+  useEffect(() => {
+    setTempName(userAgent || '');
+  }, [userAgent]);
+
+  // Chiude l'editing quando si entra in modalità monitoring
+  useEffect(() => {
+    if (isMonitoring && isEditingName) {
+      setIsEditingName(false);
+    }
+  }, [isMonitoring, isEditingName]);
+
+  const handleNameSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const trimmedName = tempName.trim();
+    if (trimmedName) {
+      setUserAgent(trimmedName);
+      localStorage.setItem('userAgent', trimmedName);
+    } else {
+      setUserAgent(undefined);
+      localStorage.removeItem('userAgent');
+    }
     setIsEditingName(false);
   };
 
   const handleNameCancel = () => {
     setTempName(userAgent || '');
+    setIsEditingName(false);
+  };
+
+  const handleClearName = () => {
+    setTempName('');
+    setUserAgent(undefined);
+    localStorage.removeItem('userAgent');
     setIsEditingName(false);
   };
 
@@ -46,46 +81,51 @@ const Header: React.FC<HeaderProps> = ({ filePath, onSearch, isFullScreen, setIs
         <span className="text-xs text-gray-400">{fileName}</span>
       </div>
       <div className="flex-1 flex justify-end items-center gap-2">
-        {/* Campo per il nome utente */}
-        <div className="flex items-center gap-2">
-          {isEditingName ? (
-            <div className="flex items-center gap-1">
-              <input
-                type="text"
-                value={tempName}
-                onChange={(e) => setTempName(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleNameSubmit();
-                  if (e.key === 'Escape') handleNameCancel();
-                }}
-                placeholder="Inserisci il tuo nome"
-                className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                autoFocus
-              />
+        {/* Campo per il nome utente - nascosto durante il monitoring */}
+        {!isMonitoring && (
+          <div className="flex items-center gap-2">
+            {isEditingName ? (
+              <form onSubmit={handleNameSubmit} className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={tempName}
+                  onChange={(e) => setTempName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') handleNameCancel();
+                  }}
+                  placeholder="Inserisci il tuo nome"
+                  className="border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                  autoFocus
+                  aria-label="Nome utente"
+                />
+                <button
+                  type="submit"
+                  className="px-3 py-2 rounded-full bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
+                >
+                  Salva
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClearName}
+                  className="p-3 rounded-full bg-white shadow hover:bg-gray-100 flex items-center justify-center text-gray-400"
+                  aria-label="Cancella nome"
+                  style={{ width: 40, height: 40 }}
+                >
+                  <X size={20} className='stroke-neutral-950 stroke-3' />
+                </button>
+              </form>
+            ) : (
               <button
-                onClick={handleNameSubmit}
-                className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                onClick={() => setIsEditingName(true)}
+                className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-300 rounded-full bg-white hover:bg-gray-50 transition-colors"
+                title="Clicca per modificare il nome"
               >
-                ✓
+                <User size={16} />
+                <span>{userAgent || 'Imposta nome'}</span>
               </button>
-              <button
-                onClick={handleNameCancel}
-                className="px-2 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600"
-              >
-                ✕
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => setIsEditingName(true)}
-              className="flex items-center gap-1 px-2 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded"
-              title="Clicca per modificare il nome"
-            >
-              <User size={16} />
-              <span>{userAgent || 'Imposta nome'}</span>
-            </button>
-          )}
-        </div>
+            )}
+          </div>
+        )}
         
         {onSearch && (
         <SearchBar onSearch={onSearch} />
