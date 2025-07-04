@@ -56,6 +56,14 @@ export const getActiveConnection = async () => {
   return response.json();
 };
 
+export const getOnlineInteractions = async () => {
+  const response = await fetch(`${basePathApi}/PageInteraction/online-interactions`);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return response.json();
+};
+
 // PageInteraction APIs
 export const trackPageInteraction = async (pageInteractionDto: { deviceId?: string; pdfFileName?: string; pageNumber: number }) => {
   const response = await fetch(`${basePathApi}/PageInteraction/track`, {
