@@ -26,7 +26,11 @@ const ReaderOnlyPage = () => {
   const { mutate } = useMutation({
     mutationFn: async (id: string) => {
       if (id) {
-        await keepAlive(id);
+        await keepAlive({
+          deviceId: id,
+          userAgent: navigator.userAgent,
+          ipAddress: "127.0.0.1"
+        });
       }
     },
     onSuccess: () => {

@@ -36,11 +36,11 @@ export const disconnect = async (deviceId: string) => {
   return response.json();
 };
 
-export const keepAlive = async (deviceId: string) => {
+export const keepAlive = async (connectionDto: { deviceId?: string; userAgent?: string; ipAddress?: string }) => {
   const response = await fetch(`${basePathApi}/Connection/keepalive`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(deviceId),
+    body: JSON.stringify(connectionDto),
   });
   if (!response.ok) {
     throw new Error('Network response was not ok');
