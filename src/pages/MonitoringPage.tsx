@@ -31,7 +31,7 @@ const MonitoringPage = () => {
   return (
     <div className={"fixed inset-0 flex flex-col bg-gray-50 text-gray-900"}>
       <Header filePath={filePath} />
-      <div className="flex-1 flex flex-row gap-10 absolute top-16 py-10 px-8">
+      <div className="w-full flex flex-row gap-10 absolute top-16 py-10 px-8">
         <MonitoringStatusCard />
         <MonitoringActivityCard />
       </div>

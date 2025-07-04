@@ -26,50 +26,51 @@ const MonitoringActivityCard = () => {
         Attività Utenti Online
       </h2>
       {data && Array.isArray(data) && data.length > 0 ? (
-        <div className="flex flex-col gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {data.map((activity, idx) => (
             <div
               key={activity.device?.deviceId || idx}
-              className="border border-gray-200 rounded-xl shadow bg-white/90 hover:shadow-lg transition-all duration-200 p-5 group flex flex-col md:flex-row gap-5 items-center md:items-stretch"
+              className="border border-gray-200 rounded-2xl shadow bg-white/90 hover:shadow-lg transition-all duration-200 p-4 group flex flex-col items-center relative w-80 min-h-[220px]"
             >
               {/* Mini PDF Viewer */}
               {activity.pdfFileName && (
-                <div className="w-full md:w-32 flex-shrink-0 flex items-center justify-center relative">
+                <div className="w-full flex items-center justify-center relative mb-3">
                   <MiniPDFViewer
                     file={activity.pdfFileName}
                     currentPage={activity.pageNumber}
-                    zoom={0.5}
-                    style={{ pointerEvents: "auto" }}
+                    zoom={0.7}
+                    style={{ pointerEvents: "auto", borderRadius: 8, boxShadow: '0 2px 8px #0001' }}
                     onClick={() => setModal({ file: activity.pdfFileName, page: activity.pageNumber })}
                   />
                   <span className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-white/80 text-xs text-gray-500 px-2 py-0.5 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">Clicca per ingrandire</span>
                 </div>
               )}
-              {/* Info Card */}
-              <div className="flex-1 flex flex-col justify-center gap-1">
-                <div className="font-semibold text-gray-700 truncate text-base mb-1 flex items-center gap-2">
+              {/* Info Card - Priorità alta */}
+              <div className="w-full flex flex-col items-center gap-1 mb-2">
+                <div className="font-semibold text-gray-800 text-base flex items-center gap-2 truncate w-full justify-center">
                   <User2Icon className="w-5 h-5 text-blue-500" />
-                  User Agent: <span className="text-gray-900 font-mono">{activity.device?.userAgent || "-"}</span>
+                  <span className="text-gray-900 font-mono truncate max-w-[120px]" title={activity.device?.userAgent || "-"}>{activity.device?.userAgent || "-"}</span>
                 </div>
-                <div className="text-sm text-gray-600">Pagina: <span className="font-semibold text-gray-800">{activity.pageNumber}</span></div>
-                <div className="text-sm text-gray-600">PDF: <span className="text-gray-900 font-mono">{activity.pdfFileName}</span></div>
-                <div className="text-xs text-gray-400">Timestamp: {new Date(activity.timestamp).toLocaleString()}</div>
-                {activity.device && (
-                  <div className="mt-2 pl-3 border-l-2 border-blue-100 bg-blue-50/30 rounded flex flex-col gap-1 py-1">
-                    <div className="font-medium text-blue-700 text-xs">Device ID: <span className="font-mono text-gray-700">{activity.device.deviceId}</span></div>
-                    <div className="text-xs text-gray-500">User Agent: <span className="font-mono">{activity.device.userAgent}</span></div>
-                    <div className="text-xs text-gray-500">IP: <span className="font-mono">{activity.device.ipAddress}</span></div>
-                    <div className="text-xs text-gray-400">Prima connessione: {new Date(activity.device.firstConnection).toLocaleString()}</div>
-                    <div className="text-xs text-gray-400">Ultima connessione: {new Date(activity.device.lastConnection).toLocaleString()}</div>
-                    <div className="text-xs mt-1">
-                      Status: {" "}
-                      <span className={activity.device.isConnected ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
-                        {activity.device.isConnected ? "Connected" : "Disconnected"}
-                      </span>
-                    </div>
-                  </div>
-                )}
+                <div className="text-sm text-blue-700 font-bold">Pagina <span className="text-lg font-extrabold text-blue-900">{activity.pageNumber}</span></div>
               </div>
+              {/* Info secondarie - collapsible */}
+              <details className="w-full mt-auto text-xs text-gray-600 bg-gray-50 rounded p-2 cursor-pointer select-none">
+                <summary className="font-medium text-gray-500 mb-1 cursor-pointer">Dettagli</summary>
+                <div className="flex flex-col gap-1">
+                  <div>PDF: <span className="text-gray-900 font-mono">{activity.pdfFileName}</span></div>
+                  <div>Timestamp: <span className="text-gray-500">{new Date(activity.timestamp).toLocaleString()}</span></div>
+                  {activity.device && (
+                    <div className="mt-1 border-t border-gray-200 pt-1 flex flex-col gap-1">
+                      <div>Device ID: <span className="font-mono text-gray-700">{activity.device.deviceId}</span></div>
+                      <div>User Agent: <span className="font-mono">{activity.device.userAgent}</span></div>
+                      <div>IP: <span className="font-mono">{activity.device.ipAddress}</span></div>
+                      <div>Prima connessione: <span className="text-gray-400">{new Date(activity.device.firstConnection).toLocaleString()}</span></div>
+                      <div>Ultima connessione: <span className="text-gray-400">{new Date(activity.device.lastConnection).toLocaleString()}</span></div>
+                      <div>Status: <span className={activity.device.isConnected ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>{activity.device.isConnected ? "Connected" : "Disconnected"}</span></div>
+                    </div>
+                  )}
+                </div>
+              </details>
             </div>
           ))}
         </div>
