@@ -51,8 +51,26 @@ const MonitoringActivityCard = () => {
                   <User2Icon className="w-5 h-5 text-blue-500" />
                   <span className="text-gray-900 font-mono truncate max-w-[120px]" title={activity.device?.userAgent || "-"}>{activity.device?.userAgent || "-"}</span>
                 </div>
-                <div className="text-sm text-blue-700 font-bold">Pagina: <span className="text-lg font-extrabold text-blue-900">{activity.pageNumber}</span></div>
-                <div className="text-xs text-green-600 font-bold">Preferiti: <span className="text-md font-extrabold text-green-700">{activity.favorites || "-"}</span></div>
+                <div className="text-sm text-blue-700 font-bold">Pagina corrente: <span className="text-lg font-extrabold text-blue-900">{activity.pageNumber}</span></div>
+                <div className="text-xs text-green-600 font-bold flex flex-wrap gap-1 items-center">Preferiti:
+                  {activity.favorites && typeof activity.favorites === "string" && activity.favorites.trim() !== ""
+                    ? activity.favorites.split(',').map((fav: string, i: number) => {
+                        const page = parseInt(fav.trim(), 10);
+                        if (isNaN(page)) return null;
+                        return (
+                          <button
+                            key={fav + i}
+                            className="ml-1 px-2 py-0.5 rounded bg-green-100 hover:bg-green-200 text-green-800 font-bold text-xs border border-green-300 transition-all duration-150 shadow-sm"
+                            onClick={() => setModal({ file: activity.pdfFileName, page })}
+                            title={`Vai a pagina ${page}`}
+                          >
+                            {page}
+                          </button>
+                        );
+                      })
+                    : <span className="text-md font-extrabold text-green-700">-</span>
+                  }
+                </div>
               </div>
               {/* Info secondarie - collapsible */}
               <details className="w-full mt-auto text-xs text-gray-600 bg-gray-50 rounded p-2 cursor-pointer select-none">
