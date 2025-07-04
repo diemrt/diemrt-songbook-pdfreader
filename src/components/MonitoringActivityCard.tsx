@@ -47,10 +47,33 @@ const MonitoringActivityCard = () => {
               )}
               {/* Info Card - Priorità alta */}
               <div className="w-full flex flex-col items-center gap-1 mb-2">
-                <div className="font-semibold text-gray-800 text-base flex items-center gap-2 truncate w-full justify-center">
-                  <User2Icon className="w-5 h-5 text-blue-500" />
-                  <span className="text-gray-900 font-mono truncate max-w-[120px]" title={activity.device?.userAgent || "-"}>{activity.device?.userAgent || "-"}</span>
-                </div>
+                {(() => {
+                  // Trova tutte le occorrenze di userAgent uguali nell'array data
+                  const userAgent = activity.device?.userAgent || "-";
+                  const sameUserAgentIndexes = data
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    .map((a: any, i: number) => a.device?.userAgent === userAgent ? i : -1)
+                    .filter(i => i !== -1);
+
+                  // Se ci sono più occorrenze, mostra "(logout...)" su tutte tranne l'ultima
+                  const isDuplicate = sameUserAgentIndexes.length > 1;
+                  const isLastOccurrence = sameUserAgentIndexes[sameUserAgentIndexes.length - 1] === idx;
+
+                  return (
+                    <div className="font-semibold text-gray-800 text-base flex flex-col items-center gap-2 truncate w-full justify-center">
+                      <User2Icon className="w-5 h-5 text-blue-500" />
+                      <span
+                        className="text-gray-900 font-mono truncate max-w-[120px]"
+                        title={userAgent}
+                      >
+                        {userAgent}
+                      </span>
+                      {isDuplicate && !isLastOccurrence && (
+                        <span className="ml-2 text-xs text-orange-500 font-medium">(logout in corso...)</span>
+                      )}
+                    </div>
+                  );
+                })()}
                 <div className="text-sm text-blue-700 font-bold">Pagina corrente: <span className="text-lg font-extrabold text-blue-900">{activity.pageNumber}</span></div>
                 <div className="text-xs text-green-600 font-bold flex flex-wrap gap-1 items-center">Preferiti:
                   {activity.favorites && typeof activity.favorites === "string" && activity.favorites.trim() !== ""
